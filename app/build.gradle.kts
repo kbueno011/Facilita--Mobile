@@ -58,4 +58,18 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+
+    implementation("androidx.compose.material3:material3:1.1.2") // ou a versão mais recente
+    implementation("androidx.compose.material:material-icons-extended:1.5.4") // necessário para ícones
+
+    //Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+
+    //COIL biblioteca para fazer chamada das img
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
+
 }
+

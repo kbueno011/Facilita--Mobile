@@ -1,5 +1,6 @@
 package com.exemple.facilita
 
+import SplashScreen
 import TelaInicio1
 import TelaInicio2
 import TelaInicio3
@@ -11,7 +12,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.exemple.facilita.screens.TelaCadastro
 import com.exemple.facilita.screens.TelaLogin
+import com.exemple.facilita.screens.TelaTipoConta
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,8 +31,11 @@ fun AppNavHost(navController: NavHostController) {
 
     NavHost(
         navController = navController,
-        startDestination = "tela_inicio2"
+        startDestination = "splash"
     ) {
+        composable("splash") {
+            SplashScreen(navController)
+        }
         composable("tela_inicio2") {
             TelaInicio1(navController)
         }
@@ -41,6 +47,12 @@ fun AppNavHost(navController: NavHostController) {
         }
         composable("tela_login") {
             TelaLogin(navController)
+        }
+        composable("tela_cadastro") {
+            TelaCadastro(navController)
+        }
+        composable("tela_tipo_conta") {
+            TelaTipoConta(navController)
         }
     }
 }

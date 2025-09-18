@@ -2,6 +2,7 @@
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -57,6 +58,19 @@ fun TelaInicio3(navController: NavController) {
                 )
 
             ) {
+
+                Text(
+                    text = "Pular",
+                    color = Color.Gray,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .padding(start = 340.dp, top = 40.dp)
+                        .clickable {
+                            navController.navigate("tela_login")
+                        }
+                )
+
                 Image(
                     painter = painterResource(R.drawable.iconcarromenu),
                     contentDescription = "Icone da moto",

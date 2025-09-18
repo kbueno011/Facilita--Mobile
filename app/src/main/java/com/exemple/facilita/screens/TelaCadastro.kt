@@ -1,7 +1,9 @@
 package com.exemple.facilita.screens
 
+import android.util.Patterns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -18,14 +20,53 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.exemple.facilita.R
+import com.exemple.facilita.model.Register
+import com.exemple.facilita.sevice.RetrofitFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.await
 
 @Composable
-fun TelaCadastro() {
+fun TelaCadastro(navController: NavController) {
+
+    val facilitaApi = RetrofitFactory().getUserService()
+    val coroutineScope = rememberCoroutineScope() // Coroutine scope seguro para Compose
+
+    // Estados para os campos
+    var nome by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var confirmarEmail by remember { mutableStateOf("") }
+    var telefone by remember { mutableStateOf("") }
+    var senha by remember { mutableStateOf("") }
+    var confirmarSenha by remember { mutableStateOf("") }
+
+    // Estados para erros
+    var isNomeError by remember { mutableStateOf(false) }
+    var isEmailError by remember { mutableStateOf(false) }
+    var isConfirmarEmailError by remember { mutableStateOf(false) }
+    var isTelefoneError by remember { mutableStateOf(false) }
+    var isSenhaError by remember { mutableStateOf(false) }
+    var isConfirmarSenhaError by remember { mutableStateOf(false) }
+
+    // Função de validação
+    fun validar(): Boolean {
+        isNomeError = nome.isBlank()
+        isEmailError = !Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        isConfirmarEmailError = email != confirmarEmail || confirmarEmail.isEmpty()
+        isTelefoneError = telefone.length < 10 || !telefone.matches(Regex("^[0-9()\\-\\s+]+\$"))
+        isSenhaError = senha.length < 6
+        isConfirmarSenhaError = senha != confirmarSenha || confirmarSenha.isEmpty()
+        return !isNomeError && !isEmailError && !isConfirmarEmailError &&
+                !isTelefoneError && !isSenhaError && !isConfirmarSenhaError
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -48,8 +89,9 @@ fun TelaCadastro() {
                     contentDescription = "Logo Facilita",
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        .height(200.dp)
-                        .width(200.dp)
+                        .height(140.dp)
+                        .width(170.dp)
+                        .padding(top = 20.dp, start = 30.dp)
                 )
 
                 Image(
@@ -86,90 +128,146 @@ fun TelaCadastro() {
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
 
-                    var nome by remember { mutableStateOf("") }
-                    var email by remember { mutableStateOf("") }
-                    var confirmarEmail by remember { mutableStateOf("") }
-                    var telefone by remember { mutableStateOf("") }
-                    var senha by remember { mutableStateOf("") }
-                    var confirmarSenha by remember { mutableStateOf("") }
-
                     OutlinedTextField(
                         value = nome,
-                        onValueChange = { nome = it },
+                        onValueChange = {
+                            nome = it
+                            isNomeError = false
+                        },
                         label = { Text("Nome Completo") },
                         placeholder = { Text("Seu Nome Completo") },
                         leadingIcon = { Icon(Icons.Default.Person, null) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = isNomeError,
+                        supportingText = {
+                            if (isNomeError) Text("Nome é obrigatório")
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
 
                     OutlinedTextField(
                         value = email,
-                        onValueChange = { email = it },
+                        onValueChange = {
+                            email = it
+                            isEmailError = false
+                        },
                         label = { Text("E-mail") },
                         placeholder = { Text("seuemail@gmail.com") },
                         leadingIcon = { Icon(Icons.Default.Email, null) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = isEmailError,
+                        supportingText = {
+                            if (isEmailError) Text("Email inválido")
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
 
                     OutlinedTextField(
                         value = confirmarEmail,
-                        onValueChange = { confirmarEmail = it },
+                        onValueChange = {
+                            confirmarEmail = it
+                            isConfirmarEmailError = false
+                        },
                         label = { Text("Confirmar e-mail") },
                         placeholder = { Text("seuemail@gmail.com") },
                         leadingIcon = { Icon(Icons.Default.Email, null) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = isConfirmarEmailError,
+                        supportingText = {
+                            if (isConfirmarEmailError) Text("Emails não coincidem")
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
 
                     OutlinedTextField(
                         value = telefone,
-                        onValueChange = { telefone = it },
+                        onValueChange = {
+                            telefone = it
+                            isTelefoneError = false
+                        },
                         label = { Text("Telefone") },
                         placeholder = { Text("(55)1191234-5678") },
                         leadingIcon = { Icon(Icons.Default.Phone, null) },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = isTelefoneError,
+                        supportingText = {
+                            if (isTelefoneError) Text("Telefone inválido")
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
 
                     OutlinedTextField(
                         value = senha,
-                        onValueChange = { senha = it },
+                        onValueChange = {
+                            senha = it
+                            isSenhaError = false
+                        },
                         label = { Text("Senha") },
                         placeholder = { Text("Crie uma senha") },
                         leadingIcon = { Icon(Icons.Default.Lock, null) },
                         visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = isSenhaError,
+                        supportingText = {
+                            if (isSenhaError) Text("Mínimo 6 caracteres")
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
 
                     OutlinedTextField(
                         value = confirmarSenha,
-                        onValueChange = { confirmarSenha = it },
+                        onValueChange = {
+                            confirmarSenha = it
+                            isConfirmarSenhaError = false
+                        },
                         label = { Text("Confirmar Senha") },
                         placeholder = { Text("Confirme sua senha") },
                         leadingIcon = { Icon(Icons.Default.Lock, null) },
                         visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = isConfirmarSenhaError,
+                        supportingText = {
+                            if (isConfirmarSenhaError) Text("Senhas não coincidem")
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
 
                     Button(
-                        onClick = { /* Ação de cadastro */ },
+                        onClick = {
+                            if (validar()) {
+                                val cadastro = Register(
+                                    nome = nome,
+                                    email = email,
+                                    telefone = telefone,
+                                    senha_hash = senha
+                                )
+                                coroutineScope.launch(Dispatchers.IO) {
+                                    try {
+                                        val novoCliente = facilitaApi.saveUser(cadastro).await()
+                                        withContext(Dispatchers.Main) {
+                                            navController.navigate("tela_login")
+                                        }
+                                    } catch (e: Exception) {
+                                        withContext(Dispatchers.Main) {
+                                            println("Erro ao cadastrar: ${e.message}")
+                                        }
+                                    }
+                                }
+                            } else {
+                                println("Os dados estão incorretos")
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(56.dp),
+                            .height(46.dp),
                         shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Transparent
-                        ),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                         contentPadding = PaddingValues()
                     ) {
                         Box(
@@ -194,20 +292,34 @@ fun TelaCadastro() {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Text(
-                        text = "Já possui uma conta? Fazer login",
-                        fontSize = 14.sp,
-                        color = Color.Black,
-                        textAlign = TextAlign.Center
-                    )
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Já possui uma conta? ",
+                            fontSize = 14.sp,
+                            color = Color.Black
+                        )
+                        Text(
+                            text = "Fazer login",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF019D31),
+                            modifier = Modifier.clickable {
+                                navController.navigate("tela_login")
+                            }
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-@Preview(showSystemUi = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun TelaCadastroPreview() {
-    TelaCadastro()
+fun TelaCadastroPreview() {
+    val navController = rememberNavController()
+    TelaCadastro(navController = navController)
 }

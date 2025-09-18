@@ -188,8 +188,8 @@ fun TelaRecuperacaoSenha() {
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(start = 16.dp, bottom = 16.dp)
-                    .height(180.dp)
-                    .width(180.dp)
+                    .height(120.dp)
+                    .width(120.dp)
 
             )
 

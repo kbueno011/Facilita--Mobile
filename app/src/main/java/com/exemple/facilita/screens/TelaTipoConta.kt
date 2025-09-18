@@ -19,10 +19,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.exemple.facilita.R
 
 @Composable
-fun TelaTipoConta() {
+fun TelaTipoConta(navController: NavController) {
     var selectedOption by remember { mutableStateOf<String?>(null) }
 
     Column(
@@ -231,8 +233,9 @@ fun ContaOptionCard(
     }
 }
 
-@Preview(showSystemUi = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun TelaTipoContaPreview() {
-    TelaTipoConta()
+    val navController = rememberNavController()
+    TelaTipoConta(navController = navController)
 }
